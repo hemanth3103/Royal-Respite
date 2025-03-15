@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
@@ -14,20 +14,21 @@ export const Signup = () => {
   });
   const [isError, setIsError] = useState("");
   const [submitButton, setSubmitButton] = useState(false);
-
   const [secretKey, setSecretKey] = useState("");
   const [userType, setUserType] = useState("");
+
   const navigate = useNavigate();
   const isAuth = useSelector((state) => state.auth);
-  console.log(isAuth);
-  if (isAuth.isAuth) {
-    navigate("/");
-  }
+
+  useEffect(() => {
+    if (isAuth.isAuth) {
+      navigate("/");
+    }
+  }, [isAuth, navigate]);
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&])[A-Za-z\d!@#$%^&]{8,}$/;
 
   const handlesubmit = () => {
-    // Password validation regular expression
-    const passwordRegex = /^(?=.[A-Z])(?=.[!@#$%^&])[A-Za-z\d!@#$%^&]{8,}$/;
-
     if (userType === "Admin" && secretKey !== "ABHIRAM") {
       alert("ADMIN error");
       return;
@@ -52,7 +53,7 @@ export const Signup = () => {
       .then(async (res) => {
         setSubmitButton(false);
         console.log(res);
-        navigate("/login");
+        setTimeout(() => navigate("/login"), 500);
       })
       .catch((error) => {
         setIsError(error.message);
@@ -66,25 +67,25 @@ export const Signup = () => {
     <div className={Style.container}>
       <div className={Style.inner}>
         <div>
-          <button>
-            <div>
-              Register AS
-              <input
-                type="radio"
-                name="UserType"
-                value="User"
-                onChange={(e) => setUserType(e.target.value)}
-              />{" "}
-              User
-              <input
-                type="radio"
-                name="UserType"
-                value="Admin"
-                onChange={(e) => setUserType(e.target.value)}
-              />{" "}
-              Admin
-            </div>
-          </button>
+          <p>Register AS</p>
+          <label>
+            <input
+              type="radio"
+              name="UserType"
+              value="User"
+              onChange={(e) => setUserType(e.target.value)}
+            />{" "}
+            User
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="UserType"
+              value="Admin"
+              onChange={(e) => setUserType(e.target.value)}
+            />{" "}
+            Admin
+          </label>
 
           <img src={logo} className={Style.logo} />
           <p className={Style.welcome}>
@@ -92,7 +93,8 @@ export const Signup = () => {
             with Us!
           </p>
         </div>
-        {userType === "Admin" ? (
+
+        {userType === "Admin" && (
           <div>
             <input
               className={Style.input}
@@ -101,7 +103,7 @@ export const Signup = () => {
               onChange={(e) => setSecretKey(e.target.value)}
             />
           </div>
-        ) : null}
+        )}
 
         <br />
         <div>
